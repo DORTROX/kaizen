@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Coral+Pixels&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.coral-pixels {
+  font-family: "Coral Pixels", serif;
+}
+
+.neon-text {
+  text-shadow:
+    0 0 5px #a855f7,
+    0 0 5px #a855f7,
+    0 0 5px #a855f7,
+    0 0 5px #a855f7;
+}

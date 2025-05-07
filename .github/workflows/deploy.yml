@@ -1,0 +1,51 @@
+name: CI/CD For Kaizen WEB
+
+on:
+  push:
+    branches:
+      - main  # Change to your branch name if needed
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # or your Next.js node version
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Next app
+        run: npm run build
+
+      - name: 📡 Deploy built files to AWS server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: ".next,public,package.json"
+          target: "/home/ubuntu/${{ github.event.repository.name }}/" 
+          
+      - name: 🚀 SSH & Start/Restart app on server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh  
+            cd "/home/ubuntu/${{ github.event.repository.name }}/"
+            npm ci --omit=dev
+            if pm2 list | grep -q "Kaizen"; then
+              pm2 restart "Kaizen"
+            else
+              pm2 start npm --name "Kaizen" -- start
+            fi
