@@ -40,8 +40,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            export BUN_INSTALL=~/.bun
-            export PATH=$BUN_INSTALL/bin:$PATH 
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            export PATH="$HOME/.bun/bin:$HOME/.npm-global/bin:$PATH"
             cd "/home/ubuntu/${{ github.event.repository.name }}/"
             bun install --no-save
             if pm2 list | grep -q "Kaizen"; then
